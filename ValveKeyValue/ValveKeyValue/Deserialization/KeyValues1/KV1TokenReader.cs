@@ -41,14 +41,14 @@ namespace ValveKeyValue.Deserialization.KeyValues1
                 return new KVToken(KVTokenType.EndOfFile);
             }
 
-            return nextChar switch
+            switch (nextChar)
             {
-                ObjectStart => ReadObjectStart(),
-                ObjectEnd => ReadObjectEnd(),
-                CommentBegin => ReadComment(),
-                ConditionBegin => ReadCondition(),
-                InclusionMark => ReadInclusion(),
-                _ => ReadString(),
+                case ObjectStart: return ReadObjectStart();
+                case ObjectEnd: return ReadObjectEnd();
+                case CommentBegin: return ReadComment();
+                case ConditionBegin: return ReadCondition();
+                case InclusionMark: return ReadInclusion();
+                default: return ReadString();
             };
         }
 
@@ -106,7 +106,7 @@ namespace ValveKeyValue.Deserialization.KeyValues1
                 sb.Append(next);
             }
 
-            if (sb.Length > 0 && sb[^1] == '\r')
+            if (sb.Length > 0 && sb[sb.Length - 1] == '\r')
             {
                 sb.Remove(sb.Length - 1, 1);
             }
@@ -207,16 +207,20 @@ namespace ValveKeyValue.Deserialization.KeyValues1
 
                     if (escapeNext)
                     {
-                        next = next switch
+                        switch (next)
                         {
-                            'r' => '\r',
-                            'n' => '\n',
-                            't' => '\t',
-                            '\\' => '\\',
-                            '"' => '"',
-                            _ when options.EnableValveNullByteBugBehavior => '\0',
-                            _ => throw new InvalidDataException($"Unknown escape sequence '\\{next}'."),
-                        };
+                            case 'r': next = '\r'; break;
+                            case 'n': next = '\n'; break;
+                            case 't': next = '\t'; break;
+                            case '\\': next = '\\'; break;
+                            case '"': next = '"'; break;
+                            default:
+                                if (options.EnableValveNullByteBugBehavior)
+                                    next = '\0';
+                                else
+                                    throw new InvalidDataException($"Unknown escape sequence '\\{next}'.");
+                                break;
+                        }
 
                         escapeNext = false;
                     }
@@ -231,7 +235,7 @@ namespace ValveKeyValue.Deserialization.KeyValues1
             // causes the text to be trimmed to the point of that null byte.
             if (options.EnableValveNullByteBugBehavior && result.IndexOf('\0') is var nullByteIndex && nullByteIndex >= 0)
             {
-                result = result[..nullByteIndex];
+                result = result.Substring(0, nullByteIndex);
             }
             return result;
         }

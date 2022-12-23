@@ -94,12 +94,12 @@ namespace ValveKeyValue
 
         KVCollectionValue GetCollectionValue()
         {
-            if (Value is not KVCollectionValue collection)
+            if (Value is KVCollectionValue collection)
             {
-                throw new InvalidOperationException($"This operation on a {nameof(KVObject)} can only be used when the value has children.");
+                return collection;
             }
 
-            return collection;
+            throw new InvalidOperationException($"This operation on a {nameof(KVObject)} can only be used when the value has children.");
         }
 
         string DebuggerDescription

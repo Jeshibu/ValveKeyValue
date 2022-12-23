@@ -128,14 +128,16 @@ namespace ValveKeyValue.Deserialization.KeyValues1
 
         byte[] ReadNullTerminatedBytes()
         {
-            using var mem = new MemoryStream();
-            byte nextByte;
-            while ((nextByte = reader.ReadByte()) != 0)
+            using (var mem = new MemoryStream())
             {
-                mem.WriteByte(nextByte);
-            }
+                byte nextByte;
+                while ((nextByte = reader.ReadByte()) != 0)
+                {
+                    mem.WriteByte(nextByte);
+                }
 
-            return mem.ToArray();
+                return mem.ToArray();
+            }
         }
 
         void DetectMagicHeader()

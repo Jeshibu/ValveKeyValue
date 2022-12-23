@@ -221,7 +221,7 @@ namespace ValveKeyValue
         static ILookup<string, TValue> MakeLookupCore<TValue>(IEnumerable<KVObject> items, IObjectReflector reflector)
             => items.ToLookup(kv => kv.Name, kv => ConvertValue<TValue>(kv.Value, reflector));
 
-        static readonly Dictionary<Type, Func<Type, object[], IObjectReflector, object>> EnumerableBuilders = new()
+        static readonly Dictionary<Type, Func<Type, object[], IObjectReflector, object>> EnumerableBuilders = new Dictionary<Type, Func<Type, object[], IObjectReflector, object>>()
         {
             [typeof(List<>)] = (type, values, reflector) => InvokeGeneric(nameof(MakeList), type.GetGenericArguments()[0], new object[] { values, reflector }),
             [typeof(IList<>)] = (type, values, reflector) => InvokeGeneric(nameof(MakeList), type.GetGenericArguments()[0], new object[] { values, reflector }),
@@ -435,7 +435,7 @@ namespace ValveKeyValue
                 return (KVValue)(IntPtr)value;
             }
 
-            return Type.GetTypeCode(type) switch
+            switch (Type.GetTypeCode(type))
             {
                 //TypeCode.Boolean => throw new NotImplementedException("Converting to boolean is not yet supported"),
                 //TypeCode.Byte => throw new NotImplementedException("Converting to byte is not yet supported"),
@@ -445,17 +445,17 @@ namespace ValveKeyValue
                 //TypeCode.Decimal => throw new NotImplementedException("Converting to decimal is not yet supported"),
                 //TypeCode.Double => throw new NotImplementedException("Converting to double is not yet supported"),
                 //TypeCode.Empty => throw new NotImplementedException(), // No type
-                TypeCode.Int16 => (KVValue)(int)(short)value, // There is no int16 kv type
-                TypeCode.Int32 => (KVValue)(int)value,
-                TypeCode.Int64 => (KVValue)(long)value,
+                case TypeCode.Int16: return (KVValue)(int)(short)value; // There is no int16 kv type
+                case TypeCode.Int32: return (KVValue)(int)value;
+                case TypeCode.Int64: return (KVValue)(long)value;
                 //TypeCode.Object => throw new NotImplementedException(), // Objects are handled separately
                 //TypeCode.SByte => throw new NotImplementedException("Converting to sbyte is not yet supported"),
-                TypeCode.Single => (KVValue)(float)value,
-                TypeCode.String => (KVValue)(string)value,
-                TypeCode.UInt16 => (KVValue)(ulong)(ushort)value, // There is no uint16 kv type
-                TypeCode.UInt32 => (KVValue)(ulong)(uint)value, // There is no uint32 kv type
-                TypeCode.UInt64 => (KVValue)(ulong)value,
-                _ => null,
+                case TypeCode.Single: return (KVValue)(float)value;
+                case TypeCode.String: return (KVValue)(string)value;
+                case TypeCode.UInt16: return (KVValue)(ulong)(ushort)value; // There is no uint16 kv type
+                case TypeCode.UInt32: return (KVValue)(ulong)(uint)value; // There is no uint32 kv type
+                case TypeCode.UInt64: return (KVValue)(ulong)value;
+                default: return null;
             };
         }
     }

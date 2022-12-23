@@ -24,7 +24,7 @@ namespace ValveKeyValue.Deserialization
             return MakeObject(state);
         }
 
-        readonly Stack<KVPartialState> stateStack = new();
+        readonly Stack<KVPartialState> stateStack = new Stack<KVPartialState>();
 
         public void OnKeyValuePair(string name, KVValue value)
         {

@@ -24,15 +24,17 @@ namespace ValveKeyValue
 
         public override TypeCode GetTypeCode()
         {
-            return ValueType switch
+            switch (ValueType)
             {
-                KVValueType.Collection => TypeCode.Object,
-                KVValueType.FloatingPoint => TypeCode.Single,
-                KVValueType.Int32 or KVValueType.Pointer => TypeCode.Int32,
-                KVValueType.String => TypeCode.String,
-                KVValueType.UInt64 => TypeCode.UInt64,
-                _ => throw new NotImplementedException($"No known TypeCode for '{ValueType}'."),
-            };
+                case KVValueType.Collection: return TypeCode.Object;
+                case KVValueType.FloatingPoint: return TypeCode.Single;
+                case KVValueType.Int32:
+                case KVValueType.Pointer: return TypeCode.Int32;
+                case KVValueType.String: return TypeCode.String;
+                case KVValueType.UInt64: return TypeCode.UInt64;
+                default:
+                    throw new NotImplementedException($"No known TypeCode for '{ValueType}'.");
+            }
         }
 
         public override bool ToBoolean(IFormatProvider provider) => ToInt32(provider) == 1;
